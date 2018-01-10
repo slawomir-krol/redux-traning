@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="keywords" content="remark,remarkjs,markdown,slideshow,presentation" />
+    <meta name="description" content="A simple, in-browser, markdown-driven slideshow tool." />
+    <title>Redux</title>
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+        @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+        @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+        body {
+            font-family: 'Droid Serif';
+        }
+        h1, h2, h3 {
+            font-family: 'Yanone Kaffeesatz';
+            font-weight: 400;
+            margin-bottom: 0;
+        }
+        .remark-slide-content h1 { font-size: 3em; }
+        .remark-slide-content h2 { font-size: 2em; }
+        .remark-slide-content h3 { font-size: 1.6em; }
+        .footnote {
+            position: absolute;
+            bottom: 3em;
+        }
+        li p { line-height: 1.25em; }
+        .red { color: #fa0000; }
+        .large { font-size: 2em; }
+        a, a > code {
+            color: rgb(249, 38, 114);
+            text-decoration: none;
+        }
+        code {
+            background: #e7e8e2;
+            border-radius: 5px;
+        }
+        .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+        .remark-code-line-highlighted     { background-color: #373832; }
+        .pull-left {
+            float: left;
+        }
+        .pull-right {
+            float: right;
+        }
+        .pull-right ~ p {
+            clear: both;
+        }
+        #slideshow .slide .content code {
+            font-size: 0.8em;
+        }
+        #slideshow .slide .content pre code {
+            font-size: 0.9em;
+            padding: 15px;
+        }
+        .inverse {
+            background: #272822;
+            color: #777872;
+            text-shadow: 0 0 20px #333;
+        }
+        .inverse h1, .inverse h2 {
+            color: #f3f3f3;
+            line-height: 0.8em;
+        }
+
+        /* Slide-specific styling */
+        #slide-inverse .footnote {
+            bottom: 12px;
+            left: 20px;
+        }
+        #slide-how .slides {
+            font-size: 0.9em;
+            position: absolute;
+            top:  151px;
+            right: 140px;
+        }
+        #slide-how .slides h3 {
+            margin-top: 0.2em;
+        }
+        #slide-how .slides .first, #slide-how .slides .second {
+            padding: 1px 20px;
+            height: 90px;
+            width: 120px;
+            -moz-box-shadow: 0 0 10px #777;
+            -webkit-box-shadow: 0 0 10px #777;
+            box-shadow: 0 0 10px #777;
+        }
+        #slide-how .slides .first {
+            background: #fff;
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            z-index: 1;
+        }
+        #slide-how .slides .second {
+            position: relative;
+            background: #fff;
+            z-index: 0;
+        }
+
+        /* Two-column layout */
+        .left-column {
+            color: #777;
+            width: 20%;
+            height: 92%;
+            float: left;
+        }
+        .left-column h2:last-of-type, .left-column h3:last-child {
+            color: #000;
+        }
+        .right-column {
+            width: 75%;
+            float: right;
+            padding-top: 1em;
+        }
+
+
+        .grid-left-column {
+            width: 50%;
+            height: 100px;
+            float: left;
+        }
+        .grid-right-column {
+            width: 50%;
+            height: 100px;
+            float: left;
+        }
+
+        .flux img {
+            width: 50%
+        }
+
+        .yoda img {
+            width: 50%
+        }
+
+        xmp {
+            font-family: 'Ubuntu Mono';
+            font-size: 16px;
+            padding: .5em;
+            background: #272822;
+            color: #ddd;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<textarea id="source">
+name: inverse
+class: center, middle, inverse
+
+# Redux
+
+---
+
+# Agenda
+
+1. Redux quick introduction
+2. Deep-dive
+3. Simple counter app - with minimal React
+
+---
+
+# Redux as single source of truth
+
+ .center.yoda[![Yoda](yoda.gif)]
+
+ > "Redux is a predictable state container for JavaScript apps."
+
+---
+
+# Quick introduction
+
+* holds App state
+* all state changes are predictable
+* deterministic view renders and state reproduction
+* navigating through actions
+* time travelling
+* easy to learn
+* Chrome plugin for better debugging
+* can be run in any framework, not only with React
+* simplifies async actions and complex actions dependencies
+
+---
+# Action Flow
+
+* Redux implements Flux application architecture.
+* composable views by utilizing a unidirectional data flow
+* it's a pattern, not a framework
+
+.center.flux[![Flux flow](flux-flow-0.png)]
+.center[Flow for basic action]
+
+.center.flux[![Flux flow](flux-flow-1.png)]
+.center[Flow for async/listener action]
+
+---
+# Implementation of Flux
+
+.grid-left-column.center[Redux]
+.grid-right-column.center[MobX]
+.grid-left-column.center[Relay/Apollo & GraphQL]
+.grid-right-column.center[Reflux]
+
+---
+.left-column[
+  ## Dictionary
+  ### - Store
+]
+
+.right-column[
+What is Store?:
+* Store is a tree object
+* Single application should have single Store. When you want to split data, you'll use reducer composition
+* Can be initialized using initial data, for example from server
+* Whole state can be simple serialized as JSON
+
+Store Responsibilities:
+* Holds application state
+* Allows access to state via ``getState()``
+* Allows state to be updated via ``dispatch(action)``
+* Registers listeners via ``subscribe(listener)``
+* Handles unregistering of listeners via the function returned by ``subscribe(listener)``
+
+.pull-left[
+<pre><code class="javascript hljs">import { createStore } from 'redux';
+import todoApp from './reducers';
+let store = createStore(todoApp);
+</code></pre>
+]
+]
+
+---
+.left-column[
+  ## Dictionary
+  ### - Store
+  ### - Action
+]
+
+.right-column[
+What is Action?:
+* describes the fact that something happened
+* holds minimal information needed to update the state
+* payload of action must have a ``type`` property that indicates the type of action being performed
+* should be declared as string constants
+
+<pre><code class="javascript hljs">{
+  type: SET_VISIBILITY_FILTER,
+  filter: SHOW_COMPLETED
+}</code></pre>
+
+What is action creator?:
+* instead of creating a new object holding action we should name a function responsible for creating that data
+
+<pre><code class="javascript hljs">const actionCreator = (filter) => {
+  type: SET_VISIBILITY_FILTER,
+  filter: filter
+}</code></pre>
+]
+
+---
+.left-column[
+  ## Dictionary
+  ### - Store
+  ### - Action
+  ### - Reducer
+]
+
+.right-column[
+What is Reducer?:
+* specify how the application's state changes in response on specific action
+* pure function
+* takes the previous state and and action and returns new state ``(previousState, action) => newState``
+* never mutates its arguments
+* no sides effects like performing API calls, timeouts
+* no call non-pure functions, e.g. ``Date.now()`` or ``Math.random()``
+* given same arguments it should calculate the next state in a deterministic way
+
+<pre><code class="javascript hljs">function todoApp(state = initialState, action) {
+  switch (action.type) {
+    case SET_VISIBILITY_FILTER:
+      return Object.assign({}, state, {
+        visibilityFilter: action.filter
+      })
+    default:
+      return state
+  }
+}</code></pre>
+]
+
+---
+#Rules
+
+Rules to remember:
+* Reducers must be pure functions
+* Reducers must be the single source of truth for their state
+* Reducer state should always be serializable
+* Reducer state should not contain functions
+* Some Apps don’t need Redux
+* Use constants for action types
+* Use action creators to decouple action logic from dispatch callers
+* Use ES6 parameter defaults for self-describing signatures
+* Use selectors for calculated state and decoupling
+
+---
+#Demo
+
+<iframe width="100%" height="300" src="https://jsfiddle.net/skrol/ubb5vven/embedded/js,html,result/dark/" allowpaymentrequest allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+]
+
+.right-column[
+<pre><code class="hljs javascript">npm install --save react-redux redux</code></pre>
+]
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+  ### - Component
+]
+
+.right-column[
+React bindings for Redux embrace the idea of separating presentational and container components.
+* Presentational:
+    * How things look (markup, styles)
+    * Not aware of Redux
+    * Read data from props
+    * Invoke callbacks from props
+    * are written by hand
+* Container:
+    * How things work (data fetching, state updates)
+    * Aware of redux, connected to store
+    * Subscribe to Redux state
+    * Dispatch Redux actions
+    * Usually generated by React Redux
+]
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+  ### - Component
+  ### - Provider
+]
+
+.right-column[
+    Wrap application with:
+
+<xmp>
+    <Provider store={store}><App/></Provider>
+
+</xmp>
+]
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+  ### - Component
+  ### - Provider
+  ### - connect
+]
+
+.right-column[
+connect components to store using `connect`
+
+<pre><code class="hljs javascript">connect(
+        [mapStateToProps],
+        [mapDispatchToProps],
+        [mergeProps],
+        [options]
+)</code></pre>
+
+* mapStateToProps - selects values from store's state and pass them to components props
+* mapDispatchToProps - selects actions that can be dispatched to component
+* mergeProps - additional props merged to components props
+* options - custom behavior customizations of the connector
+]
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+  ### - Component
+  ### - Provider
+  ### - connect
+  ### - dispatch
+]
+
+.right-column[
+<pre><code class="hljs javascript">class Link extends React.Component {
+    render() {
+        return (....);
+    }
+} // Presentational Component
+
+const setVisibilityFilter = (filter) => {
+    return {
+        type: 'SET_VISIBILITY_FILTER',
+        filter
+    };
+} // Action creator
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    active: ownProps.filter === state.visibilityFilter
+  }
+} // State -> props
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    onClick: () => {
+      dispatch(setVisibilityFilter(ownProps.filter))
+    }
+  }
+} // Dispatch -> props
+
+const FilterLink = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Link) // connector
+
+</code></pre>
+]
+
+---
+.left-column[
+  ## Redux with React
+  ### - install
+  ### - Component
+  ### - Provider
+  ### - connect
+  ### - dispatch
+  ### - bind ActionCreators
+]
+
+.right-column[
+
+<xmp>class Link extends React.Component {
+    render() {
+        return (
+            <span onClick={this.props.actions.filterAction()} />
+        );
+    }
+} // Presentational Component
+
+function mapStateToProps(state) {
+    return {
+        todos: state.todos
+    }
+}
+
+// actions
+import * as actionCreators from './actionCreators'
+import { bindActionCreators } from 'redux'
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(actionCreators, dispatch)
+    }
+}
+
+// connector
+import { connect } from 'react-redux'
+export default connect(
+    mapStateToProps, mapDispatchToProps)(ComponentContainer)
+</xmp>
+]
+
+    </textarea>
+<script src="remark.min.js"></script>
+<script>
+    var hljs = remark.highlighter.engine;
+</script>
+<script src="remark.language.js"></script>
+<script>
+    var slideshow = remark.create({
+        highlightStyle: 'monokai',
+        highlightLanguage: 'javascript',
+        highlightLines: true
+    }) ;
+</script>
+</body>
+</html>
